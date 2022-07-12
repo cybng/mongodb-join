@@ -1,0 +1,27 @@
+ exports.getVendorProductById=(req,res)=>{
+
+    const agentJoin=vendorDescriptionModel.aggregate([
+       
+        {$match : {email : "vendorr@gmail.com"}}, // use dynamic email
+       { $lookup: {
+          from: "vendorstocks", //mongodb collectionName
+          localField: "Item_Full_Code", //vendroStocks collectionId
+          foreignField: "Item_Full_Code", //join(vendorDescriptionModel) Model id
+          as: "stocks", //outpu values after joining
+         },
+       },
+     { $project: {"stocks.email":false} },
+     {$unwind: "$stocks"},
+  ]);
+  agentJoin.exec((err,data)=>{
+        if(err){
+            return res.status(201).json(err);
+        }
+        if(data.length>0){
+            return res.status(200).json(data);
+        }else{
+
+            return res.status(200).json({msg:"Data not found"});
+        }
+    });
+ }
